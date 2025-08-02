@@ -1,5 +1,5 @@
 use clap::Parser;
-use std::{fs, io::Error, io::ErrorKind, path::PathBuf, result::Result};
+use std::{io::Error, io::ErrorKind, path::PathBuf, result::Result};
 
 
 #[derive(Parser)]

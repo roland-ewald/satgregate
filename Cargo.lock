@@ -476,6 +476,7 @@ dependencies = [
  "csv",
  "lazy_static",
  "noodles",
+ "noodles-vcf",
  "serde",
 ]
 
