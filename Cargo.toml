@@ -1,0 +1,22 @@
+[package]
+name = "satgregate"
+version = "0.1.0"
+edition = "2024"
+license = "AGPL-3.0-or-later"
+keywords = ["segregation", "bioinformatics"]
+categories = ["science::bioinformatics::genomics"]
+description = "Provides a CLI and library functions to assign plausible inheritance patterns to genetic variants via a SAT solver."
+homepage = "https://github.com/roland-ewald/satgregate"
+repository = "https://github.com/roland-ewald/satgregate"
+readme = "README.md"
+
+[dependencies]
+clap = { version = "4.5.42", features = ["derive"] }
+lazy_static = "1.5.0"
+serde = { version = "1.0.219", features = ["derive"] }
+csv = "1.3.1"
+vcf = "0.6.1"
+
+[[bin]]
+name = "satgregate"
+path = "src/main.rs"
