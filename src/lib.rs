@@ -16,6 +16,7 @@ fn read_vcf_file(file_path: &str) -> Result<vcf::Header, Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use varisat::{Lit, CnfFormula, ExtendFormula};
 
     #[test]
     fn read_vcf_file() {
@@ -26,5 +27,14 @@ mod tests {
             let record: vcf::Record = result.unwrap();
             assert!(!record.samples().is_empty());
         }
+    }
+
+    #[test]
+    fn solve_sat_problem() {
+        let x: Lit = Lit::from_dimacs(1);
+        let y: Lit = Lit::from_dimacs(2);
+
+        let mut formula = CnfFormula::new();
+        formula.add_clause(&[x, y]);
     }
 }
