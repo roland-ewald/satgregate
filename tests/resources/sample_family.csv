@@ -1,0 +1,4 @@
+sample_id,father,mother,affected
+S1,S2,S3,yes
+S2,,,no
+S3,,,no

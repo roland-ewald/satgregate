@@ -3,28 +3,29 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::{cell::RefCell, io::Error};
 
-enum Genotype {
+pub enum Genotype {
     //HomRef, -- no gVCF support yet
     //Unknown, -- no BED support yet
     Het,
     HomAlt,
 }
 
-struct Individual {
+pub struct Person {
     sample_id: String,
     father_id: Option<String>, //RefCell<Rc<Individual>>?
     mother_id: Option<String>,
     affected: bool,
 }
 
-struct Family {
-    individuals: HashMap<String,Individual>, // TODO: check all sample_ids (father/mother) are present
+pub struct Family {
+    members: HashMap<String,Person>, // TODO: check all sample_ids (father/mother) are present
 }
 
 
 pub fn build_family_structure_from_csv(file_path: &str) -> Result<Family, Error> {
     let mut family_csv = csv::Reader::from_path(file_path)?;
-    let mut individuals: HashMap<String,Individual> = HashMap::new();
+    family_csv.headers()?;
+    let mut members: HashMap<String,Person> = HashMap::new();
     for result in family_csv.records() {
         let record = result?;
         let sample_id = record.get(0).unwrap().to_string();
@@ -42,15 +43,15 @@ pub fn build_family_structure_from_csv(file_path: &str) -> Result<Family, Error>
             _ => return Err(Error::new(std::io::ErrorKind::InvalidInput, 
                 format!("Affected status must be '1|y|yes|t|true|affected' or '0|n|no|ff|false|unaffected', found '{}'", record.get(3).unwrap()))),
         };
-        let individual = Individual {
+        let person = Person {
             sample_id: sample_id.clone(),
             father_id,
             mother_id,
             affected,
         };
-        individuals.insert(sample_id, individual);
+        members.insert(sample_id, person);
     }
-    Ok(Family { individuals })
+    Ok(Family { members })
 }
 
 
@@ -70,6 +71,25 @@ fn read_vcf_file(file_path: &str) -> Result<vcf::Header, Error> {
 mod tests {
     use super::*;
     use varisat::{Lit, CnfFormula, ExtendFormula};
+
+
+    #[test]
+    fn build_family_structure() {
+        let family = build_family_structure_from_csv("tests/resources/sample_family.csv").unwrap();
+        assert_eq!(family.members.len(), 3);
+        let s1 = family.members.get("S1").unwrap();
+        assert_eq!(s1.father_id.as_ref().unwrap(), "S2");
+        assert_eq!(s1.mother_id.as_ref().unwrap(), "S3");
+        assert!(s1.affected);
+        let s2 = family.members.get("S2").unwrap();
+        assert!(s2.father_id.is_none());
+        assert!(s2.mother_id.is_none());
+        assert!(!s2.affected);
+        let s3 = family.members.get("S3").unwrap();
+        assert!(s3.father_id.is_none());
+        assert!(s3.mother_id.is_none());
+        assert!(!s3.affected);
+    }
 
     #[test]
     fn read_vcf_file() {
